@@ -1,1 +1,1 @@
-# Picross_Solver
+# Picross-Solver
