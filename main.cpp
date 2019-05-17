@@ -3,18 +3,19 @@
 #include <vector>
 #include <time.h>
 #include <windows.h> //console text handler
+#include "Square.cpp"
 
 //Checks for single permutation lines (eg. [X-X-X]) and single numbers with unambiguous spaces (eg. 4 -> [-XXX-])
-void preliminary_search_rows(std::vector< std::vector<int> > &axis, std::vector< std::vector<picrossSquare> > &nonogram)
+void first_pass_rows(std::vector< std::vector<int> > &axis, std::vector< std::vector<Square> > &nonogram)
 {
-    int black_space_count = 0,
-        offset = 0;
+    int black_space_count = 0;
+    int offset = 0;
 
-    std::cout << "";
     for(int i = 0; i < axis.size(); ++i)
     {
         for(int j = 0; j < axis[i].size(); ++j)
         {
+            //Row is known to be empty
             if(axis[i][j] == 0)
             {
                 for(int k = 0; k < nonogram[0].size(); ++k)
@@ -53,9 +54,9 @@ void preliminary_search_rows(std::vector< std::vector<int> > &axis, std::vector<
         //For patterns that can only fit in the puzzle one way, eg. [X-X-X] or [XX-XX]
         if(black_space_count + (axis[i].size() - 1) == nonogram[0].size())
         {
-            for(int n = 0; n < axis[i].size(); ++n) //while it goes through row i...
+            for(int n = 0; n < axis[i].size(); ++n) //As it traverses row i...
             {
-                for(int o = 0; o < axis[i][n]; ++o) //it loops for the amount specified in the vector
+                for(int o = 0; o < axis[i][n]; ++o) //it loops for the amount of black spaces specified in the vector
                 {
                     nonogram[i][n + offset].state = 'X';
                     ++offset;
@@ -71,17 +72,17 @@ void preliminary_search_rows(std::vector< std::vector<int> > &axis, std::vector<
     }
 }
 
-//Chose to give columns their own separate function for easier readability and fewer bugs than trying to integrate a system for columns and columns into one function
-void preliminary_search_columns(std::vector< std::vector<int> > &axis, std::vector< std::vector<picrossSquare> > &nonogram)
+//Chose to give columns their own separate function for easier readability and debugging
+void first_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::vector<Square> > &nonogram)
 {
-    int black_space_count = 0,
-        offset = 0;
+    int black_space_count = 0;
+    int offset = 0;
 
-    std::cout << "";
     for(int i = 0; i < axis.size(); ++i)
     {
         for(int j = 0; j < axis[i].size(); ++j)
         {
+            //Column is empty
             if(axis[i][j] == 0)
             {
                 for(int k = 0; k < nonogram.size(); ++k)
@@ -95,9 +96,6 @@ void preliminary_search_columns(std::vector< std::vector<int> > &axis, std::vect
             {
                 for(int k = 0; k < nonogram.size(); ++k)
                 {
-                    //columnAccess and columnAccess dictate wether to fill in square across a column or down a column
-                    //One must be 0 and the other be 1. If columnAcess == 1 and columnAccess == 0, the array coordinates below will simplify to
-                    //nonogram[i][k], and thus the squares will be filled in across column #i
                     nonogram[k][i].state = 'X';
                 }
             }
@@ -122,7 +120,7 @@ void preliminary_search_columns(std::vector< std::vector<int> > &axis, std::vect
         //For patterns that can only fit in the puzzle one way, eg. [X-X-X] or [XX-XX]
         if(black_space_count + (axis[i].size() - 1) == nonogram.size())
         {
-            for(int n = 0; n < axis[i].size(); ++n) //while it goes through column i...
+            for(int n = 0; n < axis[i].size(); ++n) //As it goes through column i...
             {
                 for(int o = 0; o < axis[i][n]; ++o) //it loops for the amount specified in the vector
                 {
@@ -142,14 +140,13 @@ void preliminary_search_columns(std::vector< std::vector<int> > &axis, std::vect
     }
 }
 
-void secondary_search_rows(std::vector< std::vector<int> > &axis, std::vector< std::vector<picrossSquare> > &nonogram)
+void second_pass_rows(std::vector< std::vector<int> > &axis, std::vector< std::vector<Square> > &nonogram)
 {
-    int black_space_count = 0,
-        total_black_count = 0,
-        cross_count = 0,
-        //offset = 0;
-        left_boundary = 0,
-        right_boundary = 0;
+    int black_space_count = 0;
+    int total_black_count = 0;
+    int cross_count = 0;
+    int left_boundary = 0;
+    int right_boundary = 0;
 
     for(int i = 0; i < nonogram.size(); ++i)
     {
@@ -199,8 +196,7 @@ void secondary_search_rows(std::vector< std::vector<int> > &axis, std::vector< s
         //This is a more advanced version of checking for unambiguous blocks. Here it sets a left and right boundary by filling in
         //imaginary blocks in the leftmost and righmost spaces, and finds the unambiguity of the remaining spaces
         //ex. in a size fifteen row {1, 2, 5, 2} checking for the five, it would calculate the row like this: [X*XX*-------*XX]
-        //Within the seven dashes, the middle three are definitely black spaces
-        //This even works when there's only one element :^))))))
+        //Within the seven dashes, the middle three must be black
          else if(total_black_count > (nonogram[0].size() / 2))
         {
             for(int n = 0; n < axis[i].size(); ++n)
@@ -236,14 +232,13 @@ void secondary_search_rows(std::vector< std::vector<int> > &axis, std::vector< s
     }
 }
 
-void secondary_search_columns(std::vector< std::vector<int> > &axis, std::vector< std::vector<picrossSquare> > &nonogram)
+void second_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::vector<Square> > &nonogram)
 {
-    int black_space_count = 0,
-        total_black_count = 0,
-        cross_count = 0,
-        //offset = 0;
-        left_boundary = 0,
-        right_boundary = 0;
+    int black_space_count = 0;
+    int total_black_count = 0;
+    int cross_count = 0;
+    int left_boundary = 0;
+    int right_boundary = 0;
 
     for(int i = 0; i < nonogram[0].size(); ++i)
     {
@@ -294,7 +289,6 @@ void secondary_search_columns(std::vector< std::vector<int> > &axis, std::vector
         //imaginary blocks in the leftmost and righmost spaces, and finds the unambiguity of the remaining spaces
         //ex. in a size fifteen row {1, 2, 5, 2} checking for the five, it would calculate the row like this: [X*XX*-------*XX]
         //Within the seven dashes, the middle three are definitely black spaces
-        //This even works when there's only one element :^))))))
          else if(total_black_count > (nonogram.size() / 2))
         {
             for(int n = 0; n < axis[i].size(); ++n)
@@ -338,7 +332,7 @@ int main()
 
     //puzzle is a 2d vector of 10 columns, 3 rows, containing picrossSquare types
     //std::vector< std::vector<picrossSquare> > puzzle(number of rows, std::vector<picrossSquare>(number of columns));
-    std::vector< std::vector<picrossSquare> > puzzle( 4, std::vector<picrossSquare>(10));
+    std::vector< std::vector<Square> > puzzle( 4, std::vector<Square>(10));
 
     std::vector< std::vector<int> > rows {{2, 2, 3},
                                           {1, 1, 1},
@@ -357,11 +351,11 @@ int main()
                                           {1, 1}};
 
 
-    preliminary_search_rows(rows, puzzle);
-    preliminary_search_columns(columns, puzzle);
+    first_pass_rows(rows, puzzle);
+    first_pass_cols(columns, puzzle);
 
-    secondary_search_rows(rows, puzzle);
-    secondary_search_columns(columns, puzzle);
+    second_pass_rows(rows, puzzle);
+    second_pass_cols(columns, puzzle);
 
     for(int m = 0; m < 4; ++m){
         for(int n = 0; n < 10; ++n){
