@@ -1,6 +1,8 @@
 class Square
 {
     public:
-        //'-' = unsolved space, '*' = solved empty space, 'X' = solved filled space
-        char state = '-';
+        //0 = unsolved space, +/- 1 = solved empty space, +/- 2 = solved filled space
+        //Positive states represent squares solved by first and second passes
+        //Negative states are used by backtracking method to differentiate from positive solved states
+        int state = 0;
 };

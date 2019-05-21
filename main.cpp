@@ -20,7 +20,7 @@ void first_pass_rows(std::vector< std::vector<int> > &axis, std::vector< std::ve
             {
                 for(int k = 0; k < nonogram[0].size(); ++k)
                 {
-                    nonogram[i][k].state = '*';
+                    nonogram[i][k].state = 1;
                 }
             }
 
@@ -30,7 +30,7 @@ void first_pass_rows(std::vector< std::vector<int> > &axis, std::vector< std::ve
                 for(int k = 0; k < nonogram[0].size(); ++k)
                 {
 
-                    nonogram[i][k].state = 'X';
+                    nonogram[i][k].state = 2;
                 }
             }
 
@@ -43,7 +43,7 @@ void first_pass_rows(std::vector< std::vector<int> > &axis, std::vector< std::ve
             {
                 for(int p = 0; p < (axis[i][j] - (nonogram[0].size() - axis[i][j])); ++p)
                 {
-                    nonogram[i][p + (nonogram[0].size() - axis[i][j])].state = 'X';
+                    nonogram[i][p + (nonogram[0].size() - axis[i][j])].state = 2;
                 }
             }
             else
@@ -58,12 +58,12 @@ void first_pass_rows(std::vector< std::vector<int> > &axis, std::vector< std::ve
             {
                 for(int o = 0; o < axis[i][n]; ++o) //it loops for the amount of black spaces specified in the vector
                 {
-                    nonogram[i][n + offset].state = 'X';
+                    nonogram[i][n + offset].state = 2;
                     ++offset;
                 }
 
                 if((n + offset) < nonogram[0].size()){
-                    nonogram[i][n + offset].state = '*';
+                    nonogram[i][n + offset].state = 1;
                 }
             }
         }
@@ -87,7 +87,7 @@ void first_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::ve
             {
                 for(int k = 0; k < nonogram.size(); ++k)
                 {
-                    nonogram[k][i].state = '*';
+                    nonogram[k][i].state = 1;
                 }
             }
 
@@ -96,7 +96,7 @@ void first_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::ve
             {
                 for(int k = 0; k < nonogram.size(); ++k)
                 {
-                    nonogram[k][i].state = 'X';
+                    nonogram[k][i].state = 2;
                 }
             }
 
@@ -109,7 +109,7 @@ void first_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::ve
             {
                 for(int p = 0; p < (axis[i][j] - (nonogram.size() - axis[i][j])); ++p)
                 {
-                    nonogram[p + (nonogram.size() - axis[i][j])][i].state = 'X';
+                    nonogram[p + (nonogram.size() - axis[i][j])][i].state = 2;
                 }
             }
             else
@@ -124,13 +124,13 @@ void first_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::ve
             {
                 for(int o = 0; o < axis[i][n]; ++o) //it loops for the amount specified in the vector
                 {
-                    nonogram[n + offset][i].state = 'X';
+                    nonogram[n + offset][i].state = 2;
                     ++offset;
                 }
 
                 if((n + offset) < nonogram.size())
                 {
-                    nonogram[n + offset][i].state = '*';
+                    nonogram[n + offset][i].state = 1;
                 }
             }
         }
@@ -160,11 +160,11 @@ void second_pass_rows(std::vector< std::vector<int> > &axis, std::vector< std::v
         //Add up the current number of black spaces filled
         for(int j = 0; j < nonogram[0].size(); ++j)
         {
-            if(nonogram[i][j].state == 'X')
+            if(nonogram[i][j].state == 2)
             {
                 ++black_space_count;
             }
-            else if (nonogram[i][j].state == '*')
+            else if (nonogram[i][j].state == 1)
             {
                 ++cross_count;
             }
@@ -175,9 +175,9 @@ void second_pass_rows(std::vector< std::vector<int> > &axis, std::vector< std::v
         {
             for(int k = 0; k < nonogram[0].size(); ++k)
             {
-                if(nonogram[i][k].state == '-')
+                if(nonogram[i][k].state == 0)
                 {
-                    nonogram[i][k].state = 'X';
+                    nonogram[i][k].state = 2;
                 }
             }
         }
@@ -187,9 +187,9 @@ void second_pass_rows(std::vector< std::vector<int> > &axis, std::vector< std::v
         {
             for(int k = 0; k < nonogram[0].size(); ++k)
             {
-                if(nonogram[i][k].state == '-')
+                if(nonogram[i][k].state == 0)
                 {
-                    nonogram[i][k].state = '*';
+                    nonogram[i][k].state = 1;
                 }
             }
         }
@@ -221,7 +221,7 @@ void second_pass_rows(std::vector< std::vector<int> > &axis, std::vector< std::v
                 {
                     for(int q = 0; q < (axis[i][n] - (((nonogram[0].size() - (right_boundary + left_boundary)) - axis[i][n]))); ++q)
                     {
-                        nonogram[i][left_boundary + ((nonogram[0].size() - (right_boundary + left_boundary) - axis[i][n])) + q].state = 'X';
+                        nonogram[i][left_boundary + ((nonogram[0].size() - (right_boundary + left_boundary) - axis[i][n])) + q].state = 2;
                     }
                 }
             }
@@ -252,11 +252,11 @@ void second_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::v
         //Add up the current number of black spaces filled
         for(int j = 0; j < nonogram.size(); ++j)
         {
-            if(nonogram[j][i].state == 'X')
+            if(nonogram[j][i].state == 2)
             {
                 ++black_space_count;
             }
-            else if (nonogram[j][i].state == '*')
+            else if (nonogram[j][i].state == 1)
             {
                 ++cross_count;
             }
@@ -267,9 +267,9 @@ void second_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::v
         {
             for(int k = 0; k < nonogram.size(); ++k)
             {
-                if(nonogram[k][i].state == '-')
+                if(nonogram[k][i].state == 0)
                 {
-                    nonogram[k][i].state = 'X';
+                    nonogram[k][i].state = 2;
                 }
             }
         }
@@ -278,9 +278,9 @@ void second_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::v
         if(black_space_count == total_black_count){
             for(int k = 0; k < nonogram.size(); ++k)
             {
-                if(nonogram[k][i].state == '-')
+                if(nonogram[k][i].state == 0)
                 {
-                    nonogram[k][i].state = '*';
+                    nonogram[k][i].state = 1;
                 }
             }
         }
@@ -313,7 +313,7 @@ void second_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::v
                 {
                     for(int q = 0; q < (axis[i][n] - (((nonogram.size() - (right_boundary + left_boundary)) - axis[i][n]))); ++q)
                     {
-                        nonogram[left_boundary + ((nonogram.size() - (right_boundary + left_boundary) - axis[i][n])) + q][i].state = 'X';
+                        nonogram[left_boundary + ((nonogram.size() - (right_boundary + left_boundary) - axis[i][n])) + q][i].state = 2;
                     }
                 }
             }
@@ -324,11 +324,125 @@ void second_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::v
     }
 }
 
+bool is_solved(std::vector< std::vector<int> > &rows, std::vector< std::vector<int> > &cols, std::vector< std::vector<Square> > &nonogram)
+{
+    //Checking rows
+    //Looping downwards
+    for(int i = 0; i < rows.size(); ++i)
+    {
+        int cur_black_count = 0;
+        int cur_param_index = 0;
+        int cur_param = rows[i][cur_param_index];
+
+        //Looping left to right over squares
+        for(int j = 0; j < nonogram[0].size(); ++j)
+        {
+            //If empty space, puzzle isn't even filled out yet
+            if(abs(nonogram[i][j].state) == 0)
+            {
+                return false;
+            }
+
+            //If black space, increment counter
+            else if(abs(nonogram[i][j].state) == 2)
+            {
+                cur_black_count++;
+            }
+
+            //If white space, compare cur_black_count with cur_param
+            else if(abs(nonogram[i][j].state) == 1)
+            {
+                if(cur_black_count != cur_param)
+                {
+                    return false;
+                }
+
+                //If all row params are met, set cur_param to zero since all remaining spaces in row should be white spaces
+                if(cur_param_index == rows[i].size())
+                {
+                    cur_param = 0;
+                }
+                else
+                {
+                    cur_param_index++;
+                }
+                cur_black_count = 0;
+            }
+        }
+
+        if(cur_black_count != cur_param)
+        {
+            return false;
+        }
+    }
+
+    //Checking columns
+    //Looping over each column
+    for(int i = 0; i < cols.size(); ++i)
+    {
+        int cur_black_count = 0;
+        int cur_param_index = 0;
+        int cur_param = cols[i][cur_param_index];
+
+        //Looping downwards over squares
+        for(int j = 0; j < nonogram.size(); ++j)
+        {
+            //We know there aren't any empty spaces bc if there were, the function would have returned false already
+
+            //If black space, increment counter
+            if(abs(nonogram[i][j].state) == 2)
+            {
+                cur_black_count++;
+            }
+
+            //If white space, compare cur_black_count with cur_param
+            else if(abs(nonogram[i][j].state) == 1)
+            {
+                if(cur_black_count != cur_param)
+                {
+                    return false;
+                }
+
+                //If all row params are met, set cur_param to zero since all remaining spaces in row should be white spaces
+                if(cur_param_index == cols[i].size())
+                {
+                    cur_param = 0;
+                }
+                else
+                {
+                    cur_param_index++;
+                }
+                cur_black_count = 0;
+            }
+        }
+
+        if(cur_black_count != cur_param)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void solveProblem(std::vector< std::vector<int> > &rows, std::vector< std::vector<int> > &cols, std::vector< std::vector<Square> > &nonogram)
+{
+    /*if(nonogram violates params) //check_picross(rows, cols, nonogram)
+          return;
+
+    if(currentAttempt is a valid solution) //is_solved
+          output currentAttempt;
+
+    for(each possible nextAttempt based on currentAttempt)
+          solveProblem(nextAttempt)*/
+}
+
+
 int main()
 {
     srand( time(NULL));
 
-    HANDLE h_console = GetStdHandle(STD_OUTPUT_HANDLE); //h_console is a console command handler
+    HANDLE h_console = GetStdHandle(STD_OUTPUT_HANDLE); //h_console is a console command handler, used to change text color in the terminal
 
     //puzzle is a 2d vector of 10 columns, 3 rows, containing picrossSquare types
     //std::vector< std::vector<picrossSquare> > puzzle(number of rows, std::vector<picrossSquare>(number of columns));
@@ -339,6 +453,7 @@ int main()
                                           {8},
                                           {1, 1, 1}};
 
+    //Columns are written from {top -> bottom}
     std::vector< std::vector<int> > columns {{2, 1},
                                           {1},
                                           {3},
@@ -357,21 +472,54 @@ int main()
     second_pass_rows(rows, puzzle);
     second_pass_cols(columns, puzzle);
 
+    //Testing with solved nonogram
+    for(int i = 0; i < puzzle.size(); i++)
+    {
+        for(int j = 0; j < puzzle[0].size(); j++)
+        {
+            puzzle[i][j].state = 1;
+        }
+    }
+
+    puzzle[0][0].state = 2;
+    puzzle[0][1].state = 2;
+    puzzle[0][3].state = 2;
+    puzzle[0][4].state = 2;
+    puzzle[0][6].state = 2;
+    puzzle[0][7].state = 2;
+    puzzle[0][8].state = 2;
+    puzzle[1][0].state = 2;
+    puzzle[1][2].state = 2;
+    puzzle[1][8].state = 2;
+    puzzle[2][2].state = 2;
+    puzzle[2][3].state = 2;
+    puzzle[2][4].state = 2;
+    puzzle[2][5].state = 2;
+    puzzle[2][6].state = 2;
+    puzzle[2][7].state = 2;
+    puzzle[2][8].state = 2;
+    puzzle[2][9].state = 2;
+    puzzle[2][2].state = 2;
+    puzzle[3][0].state = 2;
+    puzzle[3][2].state = 2;
+    puzzle[3][4].state = 2;
+
     for(int m = 0; m < 4; ++m){
         for(int n = 0; n < 10; ++n){
-            switch( puzzle[m][n].state)
+            switch( abs(puzzle[m][n].state))
             {
-                case '-' :
+                case 0 :
                     SetConsoleTextAttribute(h_console, 255); //white
                     break;
 
-                case 'X' :
+                case 1 :
+                    SetConsoleTextAttribute(h_console, 200); //red
+                    break;
+
+                case 2 :
                     SetConsoleTextAttribute(h_console, 150); //blue
                     break;
 
-                case '*' :
-                    SetConsoleTextAttribute(h_console, 200); //red
-                    break;
             }
             std::cout << puzzle[m][n].state << " ";
         }
@@ -379,4 +527,6 @@ int main()
     }
 
     SetConsoleTextAttribute(h_console, 15);
+
+    std::cout << is_solved(rows, columns, puzzle);
 }
