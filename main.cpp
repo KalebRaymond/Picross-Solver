@@ -352,7 +352,7 @@ bool is_solved(std::vector< std::vector<int> > &rows, std::vector< std::vector<i
             //If white space, compare cur_black_count with cur_param
             else if(abs(nonogram[i][j].state) == 1)
             {
-                if(cur_black_count != cur_param)
+                if(cur_black_count != cur_param && abs(nonogram[i][j - 1].state) == 2)
                 {
                     return false;
                 }
@@ -362,17 +362,14 @@ bool is_solved(std::vector< std::vector<int> > &rows, std::vector< std::vector<i
                 {
                     cur_param = 0;
                 }
-                else
+                //Only move to next param if previous square was black
+                else if(j != 0 && abs(nonogram[i][j - 1].state) == 2)
                 {
                     cur_param_index++;
+                    cur_param = rows[i][cur_param_index];
                 }
                 cur_black_count = 0;
             }
-        }
-
-        if(cur_black_count != cur_param)
-        {
-            return false;
         }
     }
 
@@ -387,38 +384,35 @@ bool is_solved(std::vector< std::vector<int> > &rows, std::vector< std::vector<i
         //Looping downwards over squares
         for(int j = 0; j < nonogram.size(); ++j)
         {
-            //We know there aren't any empty spaces bc if there were, the function would have returned false already
+            //We know puzzle must be filled out here, or else the function would have returned false while checking rows
 
             //If black space, increment counter
-            if(abs(nonogram[i][j].state) == 2)
+            if(abs(nonogram[j][i].state) == 2)
             {
                 cur_black_count++;
             }
 
             //If white space, compare cur_black_count with cur_param
-            else if(abs(nonogram[i][j].state) == 1)
+            else if(abs(nonogram[j][i].state) == 1)
             {
-                if(cur_black_count != cur_param)
+                if(cur_black_count != cur_param && j != 0 && abs(nonogram[j - 1][i].state) == 2)
                 {
                     return false;
                 }
 
-                //If all row params are met, set cur_param to zero since all remaining spaces in row should be white spaces
+                //If all column params are met, set cur_param to zero since all remaining spaces in column should be white spaces
                 if(cur_param_index == cols[i].size())
                 {
                     cur_param = 0;
                 }
-                else
+                //Only move to next param if previous square was black
+                else if(j != 0 && abs(nonogram[j - 1][i].state) == 2)
                 {
                     cur_param_index++;
+                    cur_param = cols[i][cur_param_index];
                 }
                 cur_black_count = 0;
             }
-        }
-
-        if(cur_black_count != cur_param)
-        {
-            return false;
         }
     }
 
@@ -473,7 +467,7 @@ int main()
     second_pass_cols(columns, puzzle);
 
     //Testing with solved nonogram
-    for(int i = 0; i < puzzle.size(); i++)
+    /*for(int i = 0; i < puzzle.size(); i++)
     {
         for(int j = 0; j < puzzle[0].size(); j++)
         {
@@ -485,9 +479,9 @@ int main()
     puzzle[0][1].state = 2;
     puzzle[0][3].state = 2;
     puzzle[0][4].state = 2;
-    puzzle[0][6].state = 2;
     puzzle[0][7].state = 2;
     puzzle[0][8].state = 2;
+    puzzle[0][9].state = 2;
     puzzle[1][0].state = 2;
     puzzle[1][2].state = 2;
     puzzle[1][8].state = 2;
@@ -502,7 +496,7 @@ int main()
     puzzle[2][2].state = 2;
     puzzle[3][0].state = 2;
     puzzle[3][2].state = 2;
-    puzzle[3][4].state = 2;
+    puzzle[3][4].state = 2;*/
 
     for(int m = 0; m < 4; ++m){
         for(int n = 0; n < 10; ++n){
