@@ -140,188 +140,76 @@ void first_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::ve
     }
 }
 
-void second_pass_rows(std::vector< std::vector<int> > &axis, std::vector< std::vector<Square> > &nonogram)
+//Checks if picross is potentially able to be solved in its current state
+bool is_valid(std::vector< std::vector<int> > &rows, std::vector< std::vector<int> > &cols, std::vector< std::vector<Square> > &nonogram)
 {
-    int black_space_count = 0;
-    int total_black_count = 0;
-    int cross_count = 0;
-    int left_boundary = 0;
-    int right_boundary = 0;
-
-    for(int i = 0; i < nonogram.size(); ++i)
+    //Checking rows
+    int total_blacks = 0;
+    //Looping downwards
+    for(int i = 0; i < rows.size(); ++i)
     {
-        //Add up the integers in rows[i] to get the total number of black spaces in the row
-        //Since the number of elements in the rows vector represent the number of rows in the nonogram, int i can be used here
-        for(int m = 0; m < axis[i].size(); ++m)
+        int cur_black_count = 0;
+        int cur_x_count = 0;
+
+        for(int j = 0; j < rows[i].size(); j++)
         {
-            total_black_count += axis[i][m];
+            total_blacks += rows[i][j];
         }
 
-        //Add up the current number of black spaces filled
-        for(int j = 0; j < nonogram[0].size(); ++j)
+        //Looping left to right over squares
+        for(int k = 0; k < nonogram[0].size(); ++k)
         {
-            if(nonogram[i][j].state == 2)
+            if(abs(nonogram[i][k].state) == 1)
             {
-                ++black_space_count;
+                cur_x_count++;
             }
-            else if (nonogram[i][j].state == 1)
-            {
-                ++cross_count;
-            }
-        }
 
-        //If all non-black spaces have been found, the row can be filled in
-        if(cross_count == (nonogram[0].size() - total_black_count))
-        {
-            for(int k = 0; k < nonogram[0].size(); ++k)
+            if(abs(nonogram[i][k].state) == 2)
             {
-                if(nonogram[i][k].state == 0)
-                {
-                    nonogram[i][k].state = 2;
-                }
+                cur_black_count++;
             }
         }
 
-        //If all black spaces have been found, the row can be crossed out
-        if(black_space_count == total_black_count)
+        if(cur_black_count > total_blacks || cur_x_count > (nonogram[0].size() -  total_blacks) )
         {
-            for(int k = 0; k < nonogram[0].size(); ++k)
-            {
-                if(nonogram[i][k].state == 0)
-                {
-                    nonogram[i][k].state = 1;
-                }
-            }
+            return false;
         }
-        //This is a more advanced version of checking for unambiguous blocks. Here it sets a left and right boundary by filling in
-        //imaginary blocks in the leftmost and righmost spaces, and finds the unambiguity of the remaining spaces
-        //ex. in a size fifteen row {1, 2, 5, 2} checking for the five, it would calculate the row like this: [X*XX*-------*XX]
-        //Within the seven dashes, the middle three must be black
-         else if(total_black_count > (nonogram[0].size() / 2))
-        {
-            for(int n = 0; n < axis[i].size(); ++n)
-            {
-                left_boundary = 0;
-                right_boundary = 0;
-
-                //The number of interest right now is axis[m][n]. We must now find the left & right boundaries using elements in axis
-                for(int o = 0; o < n; ++o)
-                {
-                    left_boundary += (axis[i][o] + 1);
-                }
-
-                for(int p = (axis[i].size() - 1); p > n; --p)
-                {
-                    right_boundary += (axis[i][p] + 1);
-                }
-
-                //With the boundaries now set, find the unambiguous spaces if there are any. axis[m][n] must be greater than half of the
-                //space between the boundaries.
-                if(axis[i][n] > (nonogram[0].size() - (right_boundary + left_boundary)) / 2)
-                {
-                    for(int q = 0; q < (axis[i][n] - (((nonogram[0].size() - (right_boundary + left_boundary)) - axis[i][n]))); ++q)
-                    {
-                        nonogram[i][left_boundary + ((nonogram[0].size() - (right_boundary + left_boundary) - axis[i][n])) + q].state = 2;
-                    }
-                }
-            }
-        }
-
-        black_space_count = 0;
-        total_black_count = 0;
     }
-}
 
-void second_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::vector<Square> > &nonogram)
-{
-    int black_space_count = 0;
-    int total_black_count = 0;
-    int cross_count = 0;
-    int left_boundary = 0;
-    int right_boundary = 0;
-
-    for(int i = 0; i < nonogram[0].size(); ++i)
+    //Checking rows
+    total_blacks = 0;
+    //Looping downwards
+    for(int i = 0; i < cols.size(); ++i)
     {
-        //Add up the integers in column[i] to get the total number of black spaces
-        //Since the number of elements in the column vector represent the number of columns in the nonogram, int i can be used here
-        for(int m = 0; m < axis[i].size(); ++m)
+        int cur_black_count = 0;
+        int cur_x_count = 0;
+
+        for(int j = 0; j < cols[i].size(); j++)
         {
-            total_black_count += axis[i][m];
+            total_blacks += cols[i][j];
         }
 
-        //Add up the current number of black spaces filled
-        for(int j = 0; j < nonogram.size(); ++j)
+        //Looping left to right over squares
+        for(int k = 0; k < nonogram.size(); ++k)
         {
-            if(nonogram[j][i].state == 2)
+            if(abs(nonogram[k][i].state) == 1)
             {
-                ++black_space_count;
+                cur_x_count++;
             }
-            else if (nonogram[j][i].state == 1)
+
+            if(abs(nonogram[k][i].state) == 2)
             {
-                ++cross_count;
+                cur_black_count++;
             }
         }
 
-        //If all non-black spaces have been found, the column can be filled in
-        if(cross_count == (nonogram.size() - total_black_count))
+        if(cur_black_count > total_blacks || cur_x_count > (nonogram.size() -  total_blacks) )
         {
-            for(int k = 0; k < nonogram.size(); ++k)
-            {
-                if(nonogram[k][i].state == 0)
-                {
-                    nonogram[k][i].state = 2;
-                }
-            }
+            return false;
         }
-
-        //If all black spaces have been found, the column can be crossed out
-        if(black_space_count == total_black_count){
-            for(int k = 0; k < nonogram.size(); ++k)
-            {
-                if(nonogram[k][i].state == 0)
-                {
-                    nonogram[k][i].state = 1;
-                }
-            }
-        }
-
-        //This is a more advanced version of checking for unambiguous blocks. Here it sets a left and right boundary by filling in
-        //imaginary blocks in the leftmost and righmost spaces, and finds the unambiguity of the remaining spaces
-        //ex. in a size fifteen row {1, 2, 5, 2} checking for the five, it would calculate the row like this: [X*XX*-------*XX]
-        //Within the seven dashes, the middle three are definitely black spaces
-         else if(total_black_count > (nonogram.size() / 2))
-        {
-            for(int n = 0; n < axis[i].size(); ++n)
-            {
-                left_boundary = 0;
-                right_boundary = 0;
-
-                //The number of interest right now is axis[m][n]. We must now find the left & right boundaries using elements in axis
-                for(int o = 0; o < n; ++o)
-                {
-                    left_boundary += (axis[i][o] + 1);
-                }
-
-                for(int p = (axis[i].size() - 1); p > n; --p)
-                {
-                    right_boundary += (axis[i][p] + 1);
-                }
-
-                //With the boundaries now set, find the unambiguous spaces if there are any. axis[m][n] must be greater than half of the
-                //space between the boundaries.
-                if(axis[i][n] > (nonogram.size() - (right_boundary + left_boundary)) / 2)
-                {
-                    for(int q = 0; q < (axis[i][n] - (((nonogram.size() - (right_boundary + left_boundary)) - axis[i][n]))); ++q)
-                    {
-                        nonogram[left_boundary + ((nonogram.size() - (right_boundary + left_boundary) - axis[i][n])) + q][i].state = 2;
-                    }
-                }
-            }
-        }
-
-        black_space_count = 0;
-        total_black_count = 0;
     }
+
+    return true;
 }
 
 bool is_solved(std::vector< std::vector<int> > &rows, std::vector< std::vector<int> > &cols, std::vector< std::vector<Square> > &nonogram)
@@ -424,7 +312,7 @@ void solveProblem(std::vector< std::vector<int> > &rows, std::vector< std::vecto
     /*if(nonogram violates params) //check_picross(rows, cols, nonogram)
           return;
 
-    if(currentAttempt is a valid solution) //is_solved
+    if((is_solved(rows, cols, nonogram)
           output currentAttempt;
 
     for(each possible nextAttempt based on currentAttempt)
@@ -463,9 +351,6 @@ int main()
     first_pass_rows(rows, puzzle);
     first_pass_cols(columns, puzzle);
 
-    second_pass_rows(rows, puzzle);
-    second_pass_cols(columns, puzzle);
-
     //Testing with solved nonogram
     /*for(int i = 0; i < puzzle.size(); i++)
     {
@@ -493,7 +378,6 @@ int main()
     puzzle[2][7].state = 2;
     puzzle[2][8].state = 2;
     puzzle[2][9].state = 2;
-    puzzle[2][2].state = 2;
     puzzle[3][0].state = 2;
     puzzle[3][2].state = 2;
     puzzle[3][4].state = 2;*/
@@ -522,5 +406,6 @@ int main()
 
     SetConsoleTextAttribute(h_console, 15);
 
-    std::cout << is_solved(rows, columns, puzzle);
+    //std::cout << is_solved(rows, columns, puzzle);
+    std::cout << is_valid(rows, columns, puzzle);
 }
