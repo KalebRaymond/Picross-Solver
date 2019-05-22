@@ -1,3 +1,4 @@
 # Picross-Solver
 
-Most of the functions in main.cpp could be encapsulated into a puzzle class
+Solves nonogram puzzles very slowly.
+Uses a backtracking approach, which is just a fancy brute force
