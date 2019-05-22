@@ -1,155 +1,50 @@
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
-#include <time.h>
 #include <windows.h> //console text handler
 #include "Square.cpp"
 
-//Checks for single permutation lines (eg. [X-X-X]) and single numbers with unambiguous spaces (eg. 4 -> [-XXX-])
-void first_pass_rows(std::vector< std::vector<int> > &axis, std::vector< std::vector<Square> > &nonogram)
+void print_puzzle(std::vector< std::vector<Square> > nonogram)
 {
-    int black_space_count = 0;
-    int offset = 0;
+    HANDLE h_console = GetStdHandle(STD_OUTPUT_HANDLE); //h_console is a console command handler, used to change text color in the terminal
 
-    for(int i = 0; i < axis.size(); ++i)
+    for(int m = 0; m < nonogram.size(); ++m)
     {
-        for(int j = 0; j < axis[i].size(); ++j)
-        {
-            //Row is known to be empty
-            if(axis[i][j] == 0)
+        for(int n = 0; n < nonogram[0].size(); ++n){
+            switch( abs(nonogram[m][n].state))
             {
-                for(int k = 0; k < nonogram[0].size(); ++k)
-                {
-                    nonogram[i][k].state = 1;
-                }
-            }
+                case 0 :
+                    SetConsoleTextAttribute(h_console, 255); //white
+                    break;
 
-            //If the number of black spaces in a row equals the row's width
-            else if(axis[i][j] == nonogram[0].size())
-            {
-                for(int k = 0; k < nonogram[0].size(); ++k)
-                {
+                case 1 :
+                    SetConsoleTextAttribute(h_console, 200); //red
+                    break;
 
-                    nonogram[i][k].state = 2;
-                }
-            }
+                case 2 :
+                    SetConsoleTextAttribute(h_console, 150); //blue
+                    break;
 
-            //Now check for unambiguous middle spaces, eg. [XXX--] [-XXX-] [--XXX], in all posible cases the middle is definitely a black space
-            //[XXXX-] [-XXXX], middle three are definitely black.
-            //The amount of unsure spaces to leave on either size is given by (puzzle length - total number of black space)
-            //The amount in the middle is total blacks - (puzzle length - total blacks)
-
-            else if((axis[i].size() == 1) && (axis[i][j] > (nonogram[0].size() / 2)))
-            {
-                for(int p = 0; p < (axis[i][j] - (nonogram[0].size() - axis[i][j])); ++p)
-                {
-                    nonogram[i][p + (nonogram[0].size() - axis[i][j])].state = 2;
-                }
             }
-            else
-            {
-                black_space_count += axis[i][j];
-            }
+            std::cout << abs(nonogram[m][n].state)<< " ";
         }
-        //For patterns that can only fit in the puzzle one way, eg. [X-X-X] or [XX-XX]
-        if(black_space_count + (axis[i].size() - 1) == nonogram[0].size())
-        {
-            for(int n = 0; n < axis[i].size(); ++n) //As it traverses row i...
-            {
-                for(int o = 0; o < axis[i][n]; ++o) //it loops for the amount of black spaces specified in the vector
-                {
-                    nonogram[i][n + offset].state = 2;
-                    ++offset;
-                }
-
-                if((n + offset) < nonogram[0].size()){
-                    nonogram[i][n + offset].state = 1;
-                }
-            }
-        }
-        offset = 0;
-        black_space_count = 0;
+        std::cout << "\n";
     }
-}
 
-//Chose to give columns their own separate function for easier readability and debugging
-void first_pass_cols(std::vector< std::vector<int> > &axis, std::vector< std::vector<Square> > &nonogram)
-{
-    int black_space_count = 0;
-    int offset = 0;
-
-    for(int i = 0; i < axis.size(); ++i)
-    {
-        for(int j = 0; j < axis[i].size(); ++j)
-        {
-            //Column is empty
-            if(axis[i][j] == 0)
-            {
-                for(int k = 0; k < nonogram.size(); ++k)
-                {
-                    nonogram[k][i].state = 1;
-                }
-            }
-
-            //If the number of black spaces in a column equals the column's width
-            else if(axis[i][j] == nonogram.size())
-            {
-                for(int k = 0; k < nonogram.size(); ++k)
-                {
-                    nonogram[k][i].state = 2;
-                }
-            }
-
-            //Now check for unambiguous middle spaces, eg. [XXX--] [-XXX-] [--XXX], in all posible cases the middle is definitely a black space
-            //[XXXX-] [-XXXX], middle three are definitely black.
-            //The amount of unsure spaces to leave on either size is given by (puzzle length - total number of black space)
-            //The amount in the middle is total blacks - (puzzle length - total blacks)
-
-            else if((axis[i].size() == 1) && (axis[i][j] > (nonogram.size() / 2)))
-            {
-                for(int p = 0; p < (axis[i][j] - (nonogram.size() - axis[i][j])); ++p)
-                {
-                    nonogram[p + (nonogram.size() - axis[i][j])][i].state = 2;
-                }
-            }
-            else
-            {
-                black_space_count += axis[i][j];
-            }
-        }
-        //For patterns that can only fit in the puzzle one way, eg. [X-X-X] or [XX-XX]
-        if(black_space_count + (axis[i].size() - 1) == nonogram.size())
-        {
-            for(int n = 0; n < axis[i].size(); ++n) //As it goes through column i...
-            {
-                for(int o = 0; o < axis[i][n]; ++o) //it loops for the amount specified in the vector
-                {
-                    nonogram[n + offset][i].state = 2;
-                    ++offset;
-                }
-
-                if((n + offset) < nonogram.size())
-                {
-                    nonogram[n + offset][i].state = 1;
-                }
-            }
-        }
-
-        offset = 0;
-        black_space_count = 0;
-    }
+    std::cout << "\n";
+    SetConsoleTextAttribute(h_console, 15);
 }
 
 //Checks if picross is potentially able to be solved in its current state
 bool is_valid(std::vector< std::vector<int> > &rows, std::vector< std::vector<int> > &cols, std::vector< std::vector<Square> > &nonogram)
 {
     //Checking rows
-    int total_blacks = 0;
     //Looping downwards
     for(int i = 0; i < rows.size(); ++i)
     {
         int cur_black_count = 0;
         int cur_x_count = 0;
+        int total_blacks = 0;
 
         for(int j = 0; j < rows[i].size(); j++)
         {
@@ -176,20 +71,20 @@ bool is_valid(std::vector< std::vector<int> > &rows, std::vector< std::vector<in
         }
     }
 
-    //Checking rows
-    total_blacks = 0;
-    //Looping downwards
+    //Checking cols
+    //Looping left to right
     for(int i = 0; i < cols.size(); ++i)
     {
         int cur_black_count = 0;
         int cur_x_count = 0;
+        int total_blacks = 0;
 
         for(int j = 0; j < cols[i].size(); j++)
         {
             total_blacks += cols[i][j];
         }
 
-        //Looping left to right over squares
+        //Looping downwards over squares
         for(int k = 0; k < nonogram.size(); ++k)
         {
             if(abs(nonogram[k][i].state) == 1)
@@ -307,25 +202,82 @@ bool is_solved(std::vector< std::vector<int> > &rows, std::vector< std::vector<i
     return true;
 }
 
-void solveProblem(std::vector< std::vector<int> > &rows, std::vector< std::vector<int> > &cols, std::vector< std::vector<Square> > &nonogram)
+std::vector< std::vector<Square> > extend(std::vector< std::vector<int> > rows, std::vector< std::vector<int> > cols, std::vector< std::vector<Square> > nonogram)
 {
-    /*if(nonogram violates params) //check_picross(rows, cols, nonogram)
-          return;
+    if(is_solved(rows, cols, nonogram))
+    {
+        return std::vector< std::vector<Square> >(); //Return empty vector
+    }
 
-    if((is_solved(rows, cols, nonogram)
-          output currentAttempt;
+    std::vector< std::vector<Square> > extension = nonogram;
+    for(int i = 0; i < extension.size(); i++)
+    {
+        for(int j = 0; j < extension[0].size(); j++)
+        {
+            if(extension[i][j].state == 0)
+            {
+                extension[i][j].state = -1;
+                return extension;
+            }
+        }
+    }
 
-    for(each possible nextAttempt based on currentAttempt)
-          solveProblem(nextAttempt)*/
+    return std::vector< std::vector<Square> >();
+}
+
+std::vector< std::vector<Square> > next(std::vector< std::vector<Square> > nonogram)
+{
+    std::vector< std::vector<Square> > next_nonogram = nonogram;
+
+    for(int i = next_nonogram.size() - 1; i >= 0; i--)
+    {
+        for(int j = next_nonogram[0].size() - 1; j >= 0; j--)
+        {
+            if(next_nonogram[i][j].state == -1)
+            {
+                --next_nonogram[i][j].state;
+                return next_nonogram;
+            }
+
+            if(next_nonogram[i][j].state == -2)
+            {
+                next_nonogram[i][j].state = 0;
+                return std::vector< std::vector<Square> >(); //Return empty vector
+            }
+        }
+    }
+
+    return std::vector< std::vector<Square> >();
 }
 
 
+std::vector< std::vector<Square> > solve_picross(std::vector< std::vector<int> > &rows, std::vector< std::vector<int> > &cols, std::vector< std::vector<Square> > &nonogram)
+{
+    print_puzzle(nonogram);
+
+    if(!is_valid(rows, cols, nonogram))
+          return std::vector< std::vector<Square> >(); //Return empty vector
+
+    if(is_solved(rows, cols, nonogram))
+          return nonogram;
+
+    std::vector< std::vector<Square> > attempt = extend(rows, cols, nonogram);
+    while(!attempt.empty())
+    {
+        std::vector< std::vector<Square> > solution = solve_picross(rows, cols, attempt);
+        if(!solution.empty())
+        {
+            return solution;
+        }
+
+        attempt = next(attempt);
+    }
+
+    return std::vector< std::vector<Square> >();
+}
+
 int main()
 {
-    srand( time(NULL));
-
-    HANDLE h_console = GetStdHandle(STD_OUTPUT_HANDLE); //h_console is a console command handler, used to change text color in the terminal
-
     //puzzle is a 2d vector of 10 columns, 3 rows, containing picrossSquare types
     //std::vector< std::vector<picrossSquare> > puzzle(number of rows, std::vector<picrossSquare>(number of columns));
     std::vector< std::vector<Square> > puzzle( 4, std::vector<Square>(10));
@@ -347,65 +299,5 @@ int main()
                                           {3},
                                           {1, 1}};
 
-
-    first_pass_rows(rows, puzzle);
-    first_pass_cols(columns, puzzle);
-
-    //Testing with solved nonogram
-    /*for(int i = 0; i < puzzle.size(); i++)
-    {
-        for(int j = 0; j < puzzle[0].size(); j++)
-        {
-            puzzle[i][j].state = 1;
-        }
-    }
-
-    puzzle[0][0].state = 2;
-    puzzle[0][1].state = 2;
-    puzzle[0][3].state = 2;
-    puzzle[0][4].state = 2;
-    puzzle[0][7].state = 2;
-    puzzle[0][8].state = 2;
-    puzzle[0][9].state = 2;
-    puzzle[1][0].state = 2;
-    puzzle[1][2].state = 2;
-    puzzle[1][8].state = 2;
-    puzzle[2][2].state = 2;
-    puzzle[2][3].state = 2;
-    puzzle[2][4].state = 2;
-    puzzle[2][5].state = 2;
-    puzzle[2][6].state = 2;
-    puzzle[2][7].state = 2;
-    puzzle[2][8].state = 2;
-    puzzle[2][9].state = 2;
-    puzzle[3][0].state = 2;
-    puzzle[3][2].state = 2;
-    puzzle[3][4].state = 2;*/
-
-    for(int m = 0; m < 4; ++m){
-        for(int n = 0; n < 10; ++n){
-            switch( abs(puzzle[m][n].state))
-            {
-                case 0 :
-                    SetConsoleTextAttribute(h_console, 255); //white
-                    break;
-
-                case 1 :
-                    SetConsoleTextAttribute(h_console, 200); //red
-                    break;
-
-                case 2 :
-                    SetConsoleTextAttribute(h_console, 150); //blue
-                    break;
-
-            }
-            std::cout << puzzle[m][n].state << " ";
-        }
-        std::cout << "\n";
-    }
-
-    SetConsoleTextAttribute(h_console, 15);
-
-    //std::cout << is_solved(rows, columns, puzzle);
-    std::cout << is_valid(rows, columns, puzzle);
+    puzzle = solve_picross(rows, columns, puzzle);
 }
